@@ -1,0 +1,25 @@
+.footer {
+  background-color: #f0f0f0;
+  padding: 1rem;
+  text-align: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.footer p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.footer-links {
+  margin-top: 10px;
+}
+
+.footer-links a {
+  color: #555; 
+  text-decoration: none;
+  margin: 0 10px; 
+}

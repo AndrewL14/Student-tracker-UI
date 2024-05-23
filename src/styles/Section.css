@@ -1,0 +1,31 @@
+.section {
+  text-align: center;
+  background: linear-gradient(to bottom, #5a5151, #141212); 
+  padding: 40px 0; 
+}
+.section-title {
+  margin-bottom: 20px; 
+}
+
+.section-content {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.feature {
+  width: 30%;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .feature {
+    width: 45%;
+  }
+}
+
+@media (max-width: 480px) {
+  .feature {
+    width: 100%;
+  }
+}

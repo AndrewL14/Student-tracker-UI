@@ -1,0 +1,92 @@
+section {
+  width: 100%;
+  padding: 20px;
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  background-image: url('../assets/student-tracker-hero.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  text-shadow: 2px 2px 2px black;
+}
+
+.hero-content {
+  text-align: center;
+  z-index: 1;
+}
+
+.hero-content h1 {
+  font-size: 2.5rem;
+}
+
+.hero-content p {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.hero-image img {
+  max-width: 100%;
+}
+
+.call-to-action {
+  text-align: center;
+}
+
+.register-button {
+  margin-top: 20px;
+  margin-bottom: 150px;
+  text-shadow: 2px 2px 2px black;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.register-button:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+@media screen and (min-width: 768px) {
+  .hero {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+  }
+
+  .hero-content {
+    max-width: 50%;
+  }
+
+  .hero-content h1 {
+    font-size: 4em;
+  }
+
+  .hero-image {
+    max-width: 50%;
+    margin-top: 0;
+    padding-left: 20px;
+  }
+
+  .register-button {
+    position: static;
+    margin-top: 0;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  section {
+    padding: 50px;
+  }
+}
