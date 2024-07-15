@@ -1,8 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css'; 
 import { isAuthenticated } from '../utils/AuthService'; 
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('jwt');
+    navigate("/");
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-brand">
@@ -17,6 +24,11 @@ const Navbar = () => {
             <Link to="/assignments">Assignments</Link>
           </li>
         )}
+        {isAuthenticated() && ( 
+          <li>
+            <Link to="/dashboard">Dashboard</Link>
+          </li>
+        )}
         {!isAuthenticated() && (
           <li>
             <Link to="/register">Register</Link>
@@ -24,10 +36,7 @@ const Navbar = () => {
         )}
         {isAuthenticated()  && (
           <li>
-            <Link to="/" onClick={() => { 
-                localStorage.removeItem('jwt'); 
-                window.location.href = "/"; 
-              }}>
+            <Link to="#" onClick={handleLogout}>
               Logout
             </Link>
           </li>

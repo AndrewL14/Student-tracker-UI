@@ -3,12 +3,14 @@ import '../styles/LandingPage.css'
 import '../styles/Section.css'
 import Section from '../common/Section';
 import Card from '../common/Card';
+import { useNavigate } from "react-router-dom";
 
-
-const redirect = async event => {
-  window.location.href = '/register';
-}
 const LandingPage = () => {
+  const navigate = useNavigate();
+
+  const redirect = async event => {
+    navigate('/register');
+  }
 
   return (
     <div>
@@ -50,7 +52,7 @@ const LandingPage = () => {
 
        {/* Secondary CTA */}
       <section className="call-to-action">
-        {/* Repeat button */}
+        <button className="register-button" onClick={redirect}>Sign Up Now</button>
       </section>
       
     </div>

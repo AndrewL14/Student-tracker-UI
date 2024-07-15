@@ -3,6 +3,7 @@ import { isAuthenticated } from '../utils/AuthService';
 import { useNavigate, Navigate } from 'react-router-dom';
 
 const EmailVerificationPage = () => {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [token, setToken] = useState('');
 
@@ -24,7 +25,7 @@ const EmailVerificationPage = () => {
                 }
             });
             if (response.ok) {
-                window.location.href = '/dashboard';
+                navigate('/dashboard');
             } else {
                 console.error('Email verification failed.');
             }
@@ -34,7 +35,7 @@ const EmailVerificationPage = () => {
     };
 
     if (!isAuthenticated()) {
-        window.location.href = '/';
+        return <Navigate to="/" />;
     }
 
     const handleResendVerification = async () => {

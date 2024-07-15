@@ -1,0 +1,163 @@
+
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 200px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding-top: 50px; /* Add this to move the welcome message down */
+}
+
+.sidebar h2 {
+  color: #333;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 50px;
+}
+
+.sidebar-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.sidebar-buttons button {
+  border-radius: 50%;
+  padding: 20px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+  width: 100px;
+  height: 100px;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.email-button {
+  background-color: #4CAF50;
+  color: #fff;
+}
+
+.classes-button {
+  background-color: #03A9F4;
+  color: #fff;
+}
+
+.add-button {
+  background-color: #4CAF50;
+  color: #fff;
+  margin-bottom: 50px; /* Add this to move the logout button up */
+}
+
+.logout-button {
+  background-color: #E74C3C;
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 0; /* Change this to 0 to move the logout button up */
+  margin-bottom: 70px;
+}
+.sidebar .logout-button {
+  margin-bottom: 50px; /* Add this to move the logout button up */
+  position: relative; /* Add this to move the logout button up */
+  top: -20px; /* Add this to move the logout button up */
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 200px;
+  background-color: #5dafd4;
+}
+.main-content button{
+  color: #333;
+}
+
+.add-student-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  width: 50%;
+}
+
+.add-student-form label {
+  margin-bottom: 10px;
+}
+
+.add-student-form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.add-student-form button {
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.tree-data-structure {
+  margin-left: 20px;
+}
+
+.tree-data-structure button {
+  border-radius: 50%;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 10px;
+  width: 50px;
+  height: 50px;
+  font-size: 12px;
+  background-color: #db14db;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 100px;
+  }
+}
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.modal::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}

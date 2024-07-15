@@ -6,6 +6,7 @@ function RegisterPage(props) {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [subject, setSubject] = useState('');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     const handleUsernameChange = event => {
@@ -20,14 +21,18 @@ function RegisterPage(props) {
         setEmail(event.target.value);
     }
 
+    const handleSubjectChange = event => {
+        setSubject(event.target.value);
+    }
+
     const handleSubmit = async event => {
         event.preventDefault();
-        console.log('submitted:', { username, email, password });
+        console.log('submitted:', { username, email, password, subject });
         if (!emailRegex.test(email)){
             alert('Invalid email address')
             return;
         }
-        const reqBody = {username, email, password};
+        const reqBody = {username, email, password, subject};
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -76,6 +81,11 @@ function RegisterPage(props) {
                             <label className="login-input">
                                 Password:
                                 <input type="password" required="required" value={password} onChange={handlePasswordChange} />
+                            </label>
+                                <br />
+                            <label className="login-input">
+                                Subject:
+                                <input type="text" required="required" value={subject} onChange={handleSubjectChange} />
                             </label>
                                 <br />
                             <button className="register-button" type="submit" onClick={handleSubmit}>Register</button>

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import LoginFilter from "../services/LoginFilter";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage(props) {
+    const navigate = useNavigate();
     const [feild1, setUsername] = useState('');
     const [feild2, setPassword] = useState('');
 
@@ -28,41 +29,38 @@ function LoginPage(props) {
     } 
 
     const redirect = async event => {
-        window.location.href = '/register';
+        navigate('/register');
     }
 
     const redirectToPasswordReset = async event => {
-        window.location.href = '/password-reset';
+        navigate('/password-reset');
     }
 
-
-    
-
-        return (
-            <div className="container">
-                <h1>Welcome to Graders</h1>
-                 <div className="login-box">
-                    <div className="login-form">
-                        <form>
-                            <h2>Login</h2>
-                            <label className="login-input">
-                                Username or Email:
-                                <input type="text" required="required" value={feild1} onChange={handleUsernameChange} />
-                            </label>
-                                <br />
-                            <label className="login-input">
-                                Password:
-                                <input type="password" required="required" value={feild2} onChange={handlePasswordChange} />
-                            </label>
-                                <br />
-                            <button className="login-button" type="submit" onClick={handleSubmit}>Login</button>
-                            <button className="register-button" type="submit" onClick={redirect}>Register</button>
-                            <button className="password-reset-button" type="submit" onClick={redirectToPasswordReset}>Forgot Password?</button>
-                        </form>
-                    </div>    
-                </div>
+    return (
+        <div className="container">
+            <h1>Welcome to Graders</h1>
+             <div className="login-box">
+                <div className="login-form">
+                    <form>
+                        <h2>Login</h2>
+                        <label className="login-input">
+                            Username or Email:
+                            <input type="text" required="required" value={feild1} onChange={handleUsernameChange} />
+                        </label>
+                            <br />
+                        <label className="login-input">
+                            Password:
+                            <input type="password" required="required" value={feild2} onChange={handlePasswordChange} />
+                        </label>
+                            <br />
+                        <button className="login-button" type="submit" onClick={handleSubmit}>Login</button>
+                        <button className="register-button" type="submit" onClick={redirect}>Register</button>
+                        <button className="password-reset-button" type="submit" onClick={redirectToPasswordReset}>Forgot Password?</button>
+                    </form>
+                </div>    
             </div>
-        )
+        </div>
+    )
 }
 
 export default LoginPage

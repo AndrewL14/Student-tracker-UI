@@ -207,6 +207,7 @@ input:focus, textarea:focus, select:focus {
 
 .dashboard-container button:hover {
   background-color: #007bff;
+
   color: white;
 }
 

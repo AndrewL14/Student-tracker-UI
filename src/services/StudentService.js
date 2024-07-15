@@ -56,7 +56,7 @@ class StudentService {
         grade: addStudentFormData.grade
       }
 
-      const response = await fetch(process.env.REACT_APP_ENDPOINT + ':5000/teacher/add', {
+      const response = await fetch(process.env.REACT_APP_ENDPOINT + '/teacher/add', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

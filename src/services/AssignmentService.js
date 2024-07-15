@@ -8,7 +8,8 @@ class AssignmentService {
                 grade: request.grade,
                 completed: complete,
                 dueDate: request.dueDate,
-                assignmentType: request.assignmentType
+                assignmentType: request.assignmentType,
+                period: request.period // Added period field
             }
 
             const response = await fetch(process.env.REACT_APP_ENDPOINT + ':5000/student/add', {
@@ -38,7 +39,8 @@ class AssignmentService {
                 assignmentNameToChange: request.assignmentNameToChange,
                 gradeToChange: request.gradeToChange,
                 dueDateToChange: request.dueDateToChange,
-                assignmentTypeToChange: request.assignmentTypeToChange
+                assignmentTypeToChange: request.assignmentTypeToChange,
+                period: request.period // Added period field
             }
 
             const response = await fetch(process.env.REACT_APP_ENDPOINT + ':5000/student/edit', {
@@ -63,6 +65,7 @@ class AssignmentService {
             const requestBody = {
                 studentId: request.studentId,
                 assignmentId: request.assignmentId,
+                period: request.period // Added period field
             }
 
             const response = await fetch(`${process.env.REACT_APP_ENDPOINT}:5000/student/delete`, {
