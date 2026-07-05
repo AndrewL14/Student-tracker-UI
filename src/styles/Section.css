@@ -1,0 +1,30 @@
+/* Generic landing-page content section. Namespaced as .landing-section so it
+   doesn't clash with the .section styles used on the Assignments page. */
+
+.landing-section {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 72px 28px;
+  text-align: center;
+}
+
+.landing-section-title {
+  font-size: 1.9rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.landing-section-subtitle {
+  margin: 10px auto 0;
+  max-width: 560px;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.landing-section-content {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 40px;
+}

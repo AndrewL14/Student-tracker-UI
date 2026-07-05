@@ -90,7 +90,7 @@ function RegisterPage() {
 
                 <p className="auth-footer">
                     Already have an account?{" "}
-                    <button type="button" className="link-btn" onClick={() => navigate("/")}>
+                    <button type="button" className="link-btn" onClick={() => navigate("/login")}>
                         Sign in
                     </button>
                 </p>

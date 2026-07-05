@@ -1,0 +1,41 @@
+/* Feature card used in the landing page's Features section. */
+
+.feature-card {
+  flex: 1 1 260px;
+  max-width: 340px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 26px 24px;
+  text-align: left;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.feature-card-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--brand-50);
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+}
+
+.feature-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.feature-card-desc {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}

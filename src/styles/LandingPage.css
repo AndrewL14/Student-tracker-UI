@@ -1,0 +1,108 @@
+/* Landing page layout. Uses the design tokens from App.css (:root vars). */
+
+.landing {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* ---- Hero ---------------------------------------------------------------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 96px 28px 104px;
+  text-align: center;
+  background:
+    radial-gradient(900px 420px at 15% -10%, #eaf0ff 0%, transparent 55%),
+    radial-gradient(760px 380px at 100% 0%, #f3ecff 0%, transparent 50%),
+    var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-content {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--brand-600);
+  background: var(--brand-50);
+  border: 1px solid #dfe3ff;
+  padding: 6px 12px;
+  border-radius: 999px;
+  margin-bottom: 20px;
+}
+
+.hero-content h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.hero-content p {
+  margin: 18px auto 0;
+  max-width: 580px;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.hero-note {
+  margin-top: 16px !important;
+  font-size: 0.85rem !important;
+  color: var(--text-soft) !important;
+}
+
+/* ---- CTA ----------------------------------------------------------------- */
+.cta {
+  padding: 20px 28px 80px;
+}
+
+.cta-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 54px 28px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--brand-600), #7c3aed);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+.cta-inner h2 {
+  font-size: 1.8rem;
+  letter-spacing: -0.02em;
+}
+
+.cta-inner p {
+  margin: 10px 0 24px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* On the CTA's dark background, make the primary button read as white. */
+.cta-inner .btn-primary {
+  background: #fff;
+  color: var(--brand-600);
+}
+.cta-inner .btn-primary:hover {
+  background: #f2f2ff;
+}
+
+@media (max-width: 640px) {
+  .hero { padding: 64px 18px 72px; }
+  .cta-inner { padding: 40px 20px; }
+}

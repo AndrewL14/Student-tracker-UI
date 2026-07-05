@@ -1,0 +1,47 @@
+/* Public marketing navigation used on the landing page. Namespaced with
+   .landing-nav so it never collides with the in-app navbar in App.css. */
+
+.landing-nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 32px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: saturate(180%) blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-decoration: none;
+}
+.landing-nav-brand:hover { text-decoration: none; }
+
+.landing-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.landing-nav-link {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.landing-nav-link:hover { color: var(--text); text-decoration: none; }
+
+@media (max-width: 640px) {
+  .landing-nav { padding: 13px 16px; }
+  .landing-nav-links { gap: 12px; }
+  .landing-nav-link { display: none; }
+}

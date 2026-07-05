@@ -59,7 +59,7 @@ const Assignments = () => {
   }, [refresh]);
 
   if (!isAuthenticated()) {
-    return <Navigate to="/" />;
+    return <Navigate to="/login" />;
   }
 
   const assignments = student?.assignments || [];

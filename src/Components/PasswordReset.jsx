@@ -34,7 +34,7 @@ const PasswordReset = () => {
             return;
         }
         setError('');
-        navigate('/');
+        navigate('/login');
     };
 
     return (
@@ -103,7 +103,7 @@ const PasswordReset = () => {
                 )}
 
                 <p className="auth-footer">
-                    <button type="button" className="link-btn" onClick={() => navigate('/')}>
+                    <button type="button" className="link-btn" onClick={() => navigate('/login')}>
                         Back to sign in
                     </button>
                 </p>

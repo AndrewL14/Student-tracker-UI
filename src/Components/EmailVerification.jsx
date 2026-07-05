@@ -8,7 +8,7 @@ const EmailVerificationPage = () => {
     const [message, setMessage] = useState('');
 
     if (!isAuthenticated()) {
-        return <Navigate to="/" />;
+        return <Navigate to="/login" />;
     }
 
     // Demo flow: any 6+ character code "verifies" successfully.

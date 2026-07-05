@@ -7,12 +7,14 @@ import Dashboard from './Components/Dashboard';
 import EmailVerificationPage from './Components/EmailVerification';
 import PasswordReset from './Components/PasswordReset';
 import Assignments from './Components/Assignments';
+import LandingPage from './Components/LandingPage';
 
 const App = () => {
   return (
     <BrowserRouter basename="/">
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/verify-email" element={<EmailVerificationPage />} />
