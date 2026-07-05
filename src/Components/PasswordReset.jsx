@@ -1,112 +1,115 @@
-import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const PasswordReset = () => {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [token, setToken] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [passwordsMatch, setPasswordsMatch] = useState(true);
-    const [showStep2, setShowStep2] = useState(false);
+    const [step, setStep] = useState(1);
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
 
-    const handleEmailChange = (e) => {
-        setEmail(e.target.value);
-    };
-    const handleTokenChange = (e) => {
-        setToken(e.target.value);
-    };
-    const handlePasswordChange = (e) => {
-        setPassword(e.target.value);
-    };
-    const handleConfirmPasswordChange = (e) => {
-        setConfirmPassword(e.target.value);
-    };
-
-    const handleIntiatePasswordReset = async () => {
-      if (password === confirmPassword) {
-        try {
-          const response = await fetch(process.env.REACT_APP_ENDPOINT + ':5000/auth/initiate-reset?email=' + email);
-          if (response.ok) {
-              console.log('Password reset initiated successfully.');
-              setShowStep2(true);
-          } else {
-              console.error('Failed to initiate password reset.');
-          }
-        } catch (error) {
-            console.error('Error during password reset:', error);
+    // Demo flow — no backend. Step 1 "sends" a code, step 2 "resets".
+    const handleInitiate = (e) => {
+        e.preventDefault();
+        if (!email) {
+            setError('Please enter your email address.');
+            return;
         }
-      } else {
-        console.log('Passwords do not match.');
-      }
-    }
-
-    const handleResendVerification = async () => {
-        try {
-          const response = await fetch(`${process.env.REACT_APP_ENDPOINT}:5000/auth/initiate-reset?email=${email}`);
-          if (response.ok) {
-            console.log('Password reset initiated successfully.');
-          } else {
-            console.error('Failed to initiate password reset.');
-          }
-        } catch (error) {
-          console.error('Error during password reset:', error);
-        }
+        setError('');
+        setMessage('We sent a reset code to your email. (Demo: enter any code below.)');
+        setStep(2);
     };
 
-    const handlePasswordReset = async () => {
-        const reqBody = {
-            token: token,
-            password: password,
+    const handleReset = (e) => {
+        e.preventDefault();
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters.');
+            return;
         }
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(reqBody),
+        if (password !== confirmPassword) {
+            setError('Passwords do not match.');
+            return;
         }
-        if (password === confirmPassword) {
-            try {
-                const response = await fetch(process.env.REACT_APP_ENDPOINT + ':5000/auth/reset-password', requestOptions);
-                if (response.ok) {
-                  window.location.href = '/';
-                } else {
-                    console.error('Failed to reset password.');
-                }
-            } catch (error) {
-                console.error('Error during password reset:', error);
-            }
-        } else {
-            console.error('Passwords do not match.');
-        }
-    }
+        setError('');
+        navigate('/');
+    };
 
     return (
-      <div className="password-reset-container">
-        <label>Email:
-          <input type="text" value={email} onChange={handleEmailChange} />
-        </label>
-        <button onClick={handleIntiatePasswordReset}>Initiate Password Reset</button>
-    
-        {showStep2 && (
-          <div>
-            {/* Step 2: Enter Verification Code and New Password */}
-            <label>Verification Code:
-              <input type="text" value={token} onChange={handleTokenChange} />
-            </label>
-            <label>Password:
-              <input type="password" value={password} onChange={handlePasswordChange} />
-            </label>
-            <label>Confirm Password:
-              <input type="password" value={confirmPassword} onChange={handleConfirmPasswordChange} />
-            </label>
-            {password === confirmPassword && <p>Passwords do not match</p>}
-            <button onClick={handlePasswordReset} className="reset-password-button">Reset Password</button>
-    
-            {/* Button to resend verification code */}
-            <button onClick={handleResendVerification} className="resend-verification-button">Resend Verification Code</button>
-          </div>
-        )}
-      </div>
+        <div className="auth-page">
+            <div className="auth-card">
+                <div className="auth-brand">
+                    <span className="brand-logo">G</span>
+                    Graders
+                </div>
+                <h1 className="auth-title">Reset password</h1>
+                <p className="auth-subtitle">
+                    {step === 1
+                        ? "Enter your email and we'll send a reset code."
+                        : 'Enter your code and choose a new password.'}
+                </p>
+
+                {error && <div className="alert alert-error">{error}</div>}
+                {message && <div className="alert alert-success">{message}</div>}
+
+                {step === 1 ? (
+                    <form className="auth-form" onSubmit={handleInitiate}>
+                        <div className="form-group">
+                            <label className="form-label">Email</label>
+                            <input
+                                className="form-input"
+                                type="text"
+                                placeholder="you@school.edu"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
+                        <button className="btn btn-primary btn-block" type="submit">Send reset code</button>
+                    </form>
+                ) : (
+                    <form className="auth-form" onSubmit={handleReset}>
+                        <div className="form-group">
+                            <label className="form-label">Reset code</label>
+                            <input
+                                className="form-input"
+                                type="text"
+                                placeholder="e.g. 428193"
+                                value={token}
+                                onChange={(e) => setToken(e.target.value)}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">New password</label>
+                            <input
+                                className="form-input"
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Confirm password</label>
+                            <input
+                                className="form-input"
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                            />
+                        </div>
+                        <button className="btn btn-primary btn-block" type="submit">Reset password</button>
+                    </form>
+                )}
+
+                <p className="auth-footer">
+                    <button type="button" className="link-btn" onClick={() => navigate('/')}>
+                        Back to sign in
+                    </button>
+                </p>
+            </div>
+        </div>
     );
-}
+};
 
 export default PasswordReset;

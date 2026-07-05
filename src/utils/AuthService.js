@@ -1,4 +1,7 @@
+import localDb from '../services/localDb';
+
 export const isAuthenticated = () => {
-    const jwt = localStorage.getItem('jwt');
-    return !!jwt;
-}
+    return !!localDb.getSession();
+};
+
+export const getCurrentUser = () => localDb.getSession();

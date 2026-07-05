@@ -1,324 +1,299 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { isAuthenticated } from '../utils/AuthService';
 import assignmentService from '../services/AssignmentService';
+import localDb from '../services/localDb';
+
+const gradeClass = (grade) => {
+  const g = Number(grade);
+  if (g >= 90) return 'grade-a';
+  if (g >= 80) return 'grade-b';
+  if (g >= 70) return 'grade-c';
+  return 'grade-f';
+};
+
+const statusOf = (a) => {
+  if (a.completed) return { label: 'Complete', cls: 'badge-success' };
+  if (a.overdue) return { label: 'Missing', cls: 'badge-danger' };
+  return { label: 'Incomplete', cls: 'badge-warning' };
+};
+
+const TYPE_OPTIONS = [
+  { value: 'ASSIGNMENT', label: 'Homework' },
+  { value: 'QUIZ', label: 'Quiz' },
+  { value: 'TEST', label: 'Test' },
+  { value: 'PROJECT', label: 'Project' },
+];
+
+const emptyAssignment = {
+  assignmentName: '',
+  grade: '',
+  completed: false,
+  dueDate: '',
+  assignmentType: '',
+};
 
 const Assignments = () => {
-  const [student, setStudent] = useState({});
-  const [assignmentList, setAssignmentList] = useState([]);
-  const [quizList, setQuizList] = useState([]);
-  const [testAndProjectList, setTestAndProjectList] = useState([]);
-  const [showEditForm, setShowEditForm] = useState(false);
-  const [editFormData, setEditFormData] = useState({
-    studentId: '',
+  const navigate = useNavigate();
+  const studentId = localStorage.getItem('student_id');
+
+  const [student, setStudent] = useState(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addData, setAddData] = useState(emptyAssignment);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editData, setEditData] = useState({
     assignmentId: '',
     assignmentNameToChange: '',
     gradeToChange: '',
+    completedToChange: false,
     dueDateToChange: '',
-    assignmentTypeToChange: ''
+    assignmentTypeToChange: '',
   });
-  const [addNewAssignmentFormVisible, setAddNewassignmentFormVisible] = useState(false);  
-  const [addAssignmentFormData, setAddAssignmentData] = useState({
-    studentId: '',
-    assignmentName: '',
-    grade: '',
-    completed: '',
-    dueDate: '',
-    assignmentType: ''
-  })
+
+  const refresh = useCallback(() => {
+    setStudent(localDb.getStudentById(studentId));
+  }, [studentId]);
 
   useEffect(() => {
-    const fetchAssignments = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_ENDPOINT}:5000/student/get-student?id=${localStorage.getItem("student_id")}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-            },
-          }
-        );
+    refresh();
+  }, [refresh]);
 
-        if (response.ok) {
-          const data = await response.json();
-          setStudent(data);
-          sortAssignments();
-        }
-      } catch (error) {
-        console.error("Error fetching assignments:", error);
-      }
-    };
+  if (!isAuthenticated()) {
+    return <Navigate to="/" />;
+  }
 
-    fetchAssignments();
-  }, [student.assignments]);
+  const assignments = student?.assignments || [];
+  const homework = assignments.filter((a) => a.assignmentType === 'ASSIGNMENT');
+  const quizzes = assignments.filter((a) => a.assignmentType === 'QUIZ');
+  const testsAndProjects = assignments.filter(
+    (a) => a.assignmentType === 'TEST' || a.assignmentType === 'PROJECT'
+  );
 
-  const sortAssignments = () => {
-    const assignments = student.assignments || [];
+  // ---- Add ----
+  const openAdd = () => {
+    setAddData(emptyAssignment);
+    setAddOpen(true);
+  };
+  const handleAddChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setAddData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  };
+  const handleAddSubmit = async (e) => {
+    e.preventDefault();
+    await assignmentService.addNewAssignment({ ...addData, studentId });
+    setAddOpen(false);
+    refresh();
+  };
 
-    const assignmentList = [];
-    const quizList = [];
-    const testAndProjectList = [];
-
-    assignments.forEach(assignment => {
-      if (assignment.assignmentType === 'ASSIGNMENT') {
-        assignmentList.push(assignment);
-      } else if (assignment.assignmentType === 'QUIZ') {
-        quizList.push(assignment);
-      } else if (assignment.assignmentType === 'TEST' || assignment.assignmentType === 'PROJECT') {
-        testAndProjectList.push(assignment);
-      }
+  // ---- Edit ----
+  const openEdit = (a) => {
+    setEditData({
+      assignmentId: a.id,
+      assignmentNameToChange: a.name,
+      gradeToChange: a.grade,
+      completedToChange: a.completed,
+      dueDateToChange: a.dueDate,
+      assignmentTypeToChange: a.assignmentType,
     });
+    setEditOpen(true);
+  };
+  const handleEditChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  };
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    await assignmentService.editAssignment({ ...editData, studentId });
+    setEditOpen(false);
+    refresh();
+  };
 
-    setAssignmentList(assignmentList);
-    setQuizList(quizList);
-    setTestAndProjectList(testAndProjectList);
-  }
+  const handleDelete = async (assignmentId) => {
+    await assignmentService.deleteAssignment({ studentId, assignmentId });
+    refresh();
+  };
 
-  const isMissing = (assignment) => {
-    if (assignment.overdue && !assignment.completed) {
-      return "Missing";
-    } else if (!assignment.completed) {
-      return "Incomplete";
-    } else {
-      return "Complete";
-    }
-  }
-
-  const handleAddAssignmentFormToggle = () => {
-    setAddAssignmentData({
-      studentId: student.studentId,
-      assignmentName: '',
-      grade: '',
-      completed: '',
-      dueDate: '',
-      assignmentType: ''
-    });
-    setAddNewassignmentFormVisible(!addNewAssignmentFormVisible);
-  }
-  const handleAddAssignmentFormSubmit = async () => {
-    try {
-      const token = localStorage.getItem("jwt");
-      const updatedAssignments = assignmentService.addNewAssignment(addAssignmentFormData, token);
-      sortAssignments(updatedAssignments);
-      setAddNewassignmentFormVisible(!addNewAssignmentFormVisible);
-    } catch (error) {
-      console.error("Error adding assignment:", error);
-    }
-  }
-  const handleAddAssignmentInputChange = (e) => {
-    const { name, value } = e.target;
-    setAddAssignmentData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value
-    }));
-  }
-
-
-  const handleEdit = (assignment) => {
-    setEditFormData({
-      studentId: student.studentId,
-      assignmentId: assignment.id,
-      assignmentNameToChange: assignment.assignmentName,
-      gradeToChange: assignment.grade,
-      dueDateToChange: assignment.dueDate,
-      assignmentTypeToChange: assignment.assignmentType
-    });
-    setShowEditForm(true);
-  }
-  const handleEditInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditFormData((prevFormData) => ({
-     ...prevFormData,
-      [name]: value
-    }));
-  }
-  const handleEditFormSubmit = async () => {
-    try {
-      const token = localStorage.getItem("jwt");
-      const updatedAssignments = assignmentService.editAssignment(editFormData, token);
-      console.log(editFormData);
-      sortAssignments(updatedAssignments);
-      setShowEditForm(false);
-    } catch (error) {
-      console.error("Error editing assignment:", error);
-    }
-  }
-  const handleEditFormToggle = () => {
-    setShowEditForm(!showEditForm);
-  }
-
-  const handleDelete = (assignmentId) => {
-    try {
-      const token = localStorage.getItem("jwt");
-      const request =  {
-        studentId: student.studentId,
-        assignmentId: assignmentId
-      }
-      const updatedAssignments = assignmentService.deleteAssignment(request, token);
-      sortAssignments(updatedAssignments);
-    } catch (error) {
-      console.error("Error deleting assignment:", error);
-    }
-  }
+  const renderSection = (title, list) => (
+    <div className="section">
+      <div className="section-head">
+        <span className="section-title">{title}</span>
+        <span className="section-count">{list.length}</span>
+      </div>
+      <div className="card">
+        <div className="card-body">
+          {list.length === 0 ? (
+            <div className="empty-state"><p>Nothing here yet.</p></div>
+          ) : (
+            <div className="table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Assignment</th>
+                    <th>Due</th>
+                    <th>Grade</th>
+                    <th>Status</th>
+                    <th className="col-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {list.map((a) => {
+                    const status = statusOf(a);
+                    return (
+                      <tr key={a.id}>
+                        <td style={{ fontWeight: 600 }}>{a.name}</td>
+                        <td>{a.dueDate || '—'}</td>
+                        <td>
+                          <span className={`grade-pill ${gradeClass(a.grade)}`}>
+                            {a.completed ? `${a.grade}%` : '—'}
+                          </span>
+                        </td>
+                        <td><span className={`badge ${status.cls}`}>{status.label}</span></td>
+                        <td className="col-actions">
+                          <div className="row-actions">
+                            <button className="btn btn-outline btn-sm" onClick={() => openEdit(a)}>Edit</button>
+                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(a.id)}>Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-    <div className='assignments-container'>
-      <button className='add-button' onClick={handleAddAssignmentFormToggle}>Add assignment</button>
-      <button onClick={() => window.location.href = '/dashboard'}>To dashboard</button>
-      {addNewAssignmentFormVisible && (
-        <div className="add-student-form">
-          <h3>Add New Assignment</h3>
-          <label>
-            Assignment Name:
-            <input
-              type="text"
-              name="assignmentName"
-              value={addAssignmentFormData.assignmentName}
-              onChange={handleAddAssignmentInputChange}
-              pattern="[A-Za-z\s]+"
-              required
-            />
-          </label>
-          <label>
-            Grade:
-            <input
-              type="text"
-              name="grade"
-              value={addAssignmentFormData.grade}
-              onChange={handleAddAssignmentInputChange}
-              pattern="\d*\.?\d*"
-              required
-            />
-          </label>
-          <label>
-            Completed:
-            <input
-              type="checkbox"
-              name="completed"
-              checked={addAssignmentFormData.completed}
-              onChange={handleAddAssignmentInputChange}
-            />
-          </label>
-          <label>
-            Due Date:
-            <input
-              type="date"
-              name="dueDate"
-              value={addAssignmentFormData.dueDate}
-              onChange={handleAddAssignmentInputChange}
-            />
-          </label>
-          <label>
-            Assignment Type:
-            <select
-              name="assignmentType"
-              value={addAssignmentFormData.assignmentType}
-              onChange={handleAddAssignmentInputChange}
-              required
-            >
-              <option value="">Select Type</option>
-              <option value="Assignment">Homework</option>
-              <option value="Quiz">Quiz</option>
-              <option value="Test">Test</option>
-              <option value="Project">Project</option>
-            </select>
-          </label>  
-          <button className='add-button' onClick={handleAddAssignmentFormSubmit}>Submit</button>
-          <button className='close-add-button' onClick={handleAddAssignmentFormToggle}>Close</button>
+    <div className="app-shell">
+      <nav className="navbar">
+        <div className="navbar-brand">
+          <span className="brand-logo">G</span>
+          Graders
+        </div>
+        <div className="navbar-user">
+          <button className="btn btn-ghost btn-sm" onClick={() => navigate('/dashboard')}>
+            ← Back to dashboard
+          </button>
+        </div>
+      </nav>
+
+      <div className="page">
+        <div className="page-header">
+          <div>
+            <h1 className="page-title">{student ? student.name : 'Student'}</h1>
+            <p className="page-subtitle">
+              {student ? `Period ${student.period} · Overall grade ${student.grade}%` : 'Assignment breakdown'}
+            </p>
+          </div>
+          <div className="header-actions">
+            <button className="btn btn-primary" onClick={openAdd}>+ Add assignment</button>
+          </div>
+        </div>
+
+        {!student ? (
+          <div className="card"><div className="empty-state">
+            <div className="empty-emoji">🔍</div>
+            <h4>Student not found</h4>
+            <p>Head back to the dashboard and pick a student.</p>
+          </div></div>
+        ) : (
+          <>
+            {renderSection('Homework', homework)}
+            {renderSection('Quizzes', quizzes)}
+            {renderSection('Tests & Projects', testsAndProjects)}
+          </>
+        )}
+      </div>
+
+      {/* Add assignment modal */}
+      {addOpen && (
+        <div className="modal-overlay" onClick={() => setAddOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Add assignment</h3>
+              <button className="modal-close" onClick={() => setAddOpen(false)}>×</button>
+            </div>
+            <form onSubmit={handleAddSubmit}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Assignment name</label>
+                  <input className="form-input" type="text" name="assignmentName" value={addData.assignmentName} onChange={handleAddChange} required />
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Grade (%)</label>
+                    <input className="form-input" type="number" name="grade" value={addData.grade} onChange={handleAddChange} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Due date</label>
+                    <input className="form-input" type="date" name="dueDate" value={addData.dueDate} onChange={handleAddChange} />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Type</label>
+                  <select className="form-select" name="assignmentType" value={addData.assignmentType} onChange={handleAddChange} required>
+                    <option value="">Select type</option>
+                    {TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+                <label className="checkbox-row">
+                  <input type="checkbox" name="completed" checked={addData.completed} onChange={handleAddChange} />
+                  Mark as completed
+                </label>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn btn-ghost" onClick={() => setAddOpen(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Add assignment</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
-      <table border=".1">
-        <h2>Assignments</h2>
-        <tbody>
-          {assignmentList.map(assignment => (
-            <tr key={assignment.id}>
-              <td>{assignment.name}</td>
-              <td>{assignment.grade}</td>
-              <td>{isMissing(assignment)}</td>
-              <td>
-                <button className='edit-button' onClick={() => handleEdit(assignment)}>Edit</button>
-                <button className='delete-button' onClick={() => handleDelete(assignment.id)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-        <h2>Quiz</h2>
-        <tbody>
-          {quizList.map(assignment => (
-            <tr key={assignment.id}>
-              <td>{assignment.name}</td>
-              <td>{assignment.grade}</td>
-              <td>{isMissing(assignment)}</td>
-              <td>
-                <button className='edit-button' onClick={() => handleEdit(assignment)}>Edit</button>
-                <button className='delete-button' onClick={() => handleDelete(assignment.id)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-        <h2>Projects & Test</h2>
-        <tbody>
-          {testAndProjectList.map(assignment => (
-            <tr key={assignment.id}>
-              <td>{assignment.name}</td>
-              <td>{assignment.grade}</td>
-              <td>{isMissing(assignment)}</td>
-              <td>
-                <button className='edit-button' onClick={() => handleEdit(assignment)}>Edit</button>
-                <button className='delete-button' onClick={() => handleDelete(assignment.id)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {showEditForm && (
-        <div className="edit-form">
-          <h3>Edit Student</h3>
-          <label>
-          Assignment Name:
-          <input
-            type="text"
-            name="assignmentNameToChange"
-            value={editFormData.assignmentNameToChange}
-            onChange={handleEditInputChange}
-            pattern="[A-Za-z\s]+"
-          />
-        </label>
-        <label>
-          Grade:
-          <input
-            type="text"
-            name="gradeToChange"
-            value={editFormData.gradeToChange}
-            onChange={handleEditInputChange}
-            pattern="\d*\.?\d*"
-          />
-        </label>
-        <label>
-          Due Date:
-          <input
-            type="date"
-            name="dueDateToChange"
-            value={editFormData.dueDateToChange}
-            onChange={handleEditInputChange}
-          />
-        </label>
-        <label>
-          Assignment Type:
-          <select
-            name="assignmentTypeToChange"
-            value={editFormData.assignmentTypeToChange}
-            onChange={handleEditInputChange}
-          >
-            <option value="">Select Type</option>
-            <option value="Homework">Assignment</option>
-            <option value="Quiz">Quiz</option>
-            <option value="Project">Project</option>
-            <option value="Test">Test</option>
-          </select>
-        </label>
-          <button className='edit-button' onClick={handleEditFormSubmit}>Submit</button>
-          <button className='submit-button' onClick={handleEditFormToggle}>Close</button>
+
+      {/* Edit assignment modal */}
+      {editOpen && (
+        <div className="modal-overlay" onClick={() => setEditOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Edit assignment</h3>
+              <button className="modal-close" onClick={() => setEditOpen(false)}>×</button>
+            </div>
+            <form onSubmit={handleEditSubmit}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Assignment name</label>
+                  <input className="form-input" type="text" name="assignmentNameToChange" value={editData.assignmentNameToChange} onChange={handleEditChange} required />
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Grade (%)</label>
+                    <input className="form-input" type="number" name="gradeToChange" value={editData.gradeToChange} onChange={handleEditChange} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Due date</label>
+                    <input className="form-input" type="date" name="dueDateToChange" value={editData.dueDateToChange} onChange={handleEditChange} />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Type</label>
+                  <select className="form-select" name="assignmentTypeToChange" value={editData.assignmentTypeToChange} onChange={handleEditChange}>
+                    {TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+                <label className="checkbox-row">
+                  <input type="checkbox" name="completedToChange" checked={editData.completedToChange} onChange={handleEditChange} />
+                  Mark as completed
+                </label>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn btn-ghost" onClick={() => setEditOpen(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Save changes</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

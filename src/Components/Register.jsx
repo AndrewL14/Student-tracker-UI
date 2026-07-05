@@ -1,87 +1,102 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import localDb from "../services/localDb";
 
-function RegisterPage(props) {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+function RegisterPage() {
+    const navigate = useNavigate();
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    const handleUsernameChange = event => {
-        setUsername(event.target.value);
-    };
-
-    const handlePasswordChange = event => {
-        setPassword(event.target.value);
-    };
-
-    const handleEmailChange = event => {
-        setEmail(event.target.value);
-    }
-
-    const handleSubmit = async event => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        console.log('submitted:', { username, email, password });
-        if (!emailRegex.test(email)){
-            alert('Invalid email address')
+        setError("");
+
+        if (!emailRegex.test(email)) {
+            setError("Please enter a valid email address.");
             return;
         }
-        const reqBody = {username, email, password};
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(reqBody)
-        };
-
-        try {
-            const response = await fetch(process.env.REACT_APP_ENDPOINT + ':5000/auth/register', requestOptions);
-
-            if (response.ok) {
-                const data = await response.json();
-
-                if (data.jwt) {
-                    localStorage.setItem('jwt', data.jwt);
-                    localStorage.setItem('teacher_name', data.teacherUsername);
-                    window.location.href = '/dashboard';
-                  } else {
-                    throw new Error('JWT not present in the response');
-                  }
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            alert('Registration failed. Please try again.');
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters.");
+            return;
         }
-    }
 
-    
+        setLoading(true);
+        try {
+            await localDb.register({ username, email, password });
+            navigate("/dashboard");
+        } catch (err) {
+            setError(err.message || "Registration failed. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        return (
-            <div className="container">
-                <h1>Welcome future Graders</h1>
-                 <div className="login-box">
-                    <div className="login-form">
-                        <form>
-                            <h2>Register</h2>
-                            <label className="login-input">
-                                Username:
-                                <input type="text" required="required" value={username} onChange={handleUsernameChange} />
-                            </label>
-                                <br />
-                                <label className="login-input">
-                                Email:
-                                <input type="text" required="required" value={email} onChange={handleEmailChange} />
-                            </label>
-                                <br />
-                            <label className="login-input">
-                                Password:
-                                <input type="password" required="required" value={password} onChange={handlePasswordChange} />
-                            </label>
-                                <br />
-                            <button className="register-button" type="submit" onClick={handleSubmit}>Register</button>
-                        </form>
-                    </div>    
+    return (
+        <div className="auth-page">
+            <div className="auth-card">
+                <div className="auth-brand">
+                    <span className="brand-logo">G</span>
+                    Graders
                 </div>
+                <h1 className="auth-title">Create your account</h1>
+                <p className="auth-subtitle">Start tracking your students in minutes</p>
+
+                {error && <div className="alert alert-error">{error}</div>}
+
+                <form className="auth-form" onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label className="form-label">Username</label>
+                        <input
+                            className="form-input"
+                            type="text"
+                            placeholder="jane_doe"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Email</label>
+                        <input
+                            className="form-input"
+                            type="text"
+                            placeholder="you@school.edu"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Password</label>
+                        <input
+                            className="form-input"
+                            type="password"
+                            placeholder="At least 6 characters"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
+                        {loading ? "Creating account…" : "Create account"}
+                    </button>
+                </form>
+
+                <p className="auth-footer">
+                    Already have an account?{" "}
+                    <button type="button" className="link-btn" onClick={() => navigate("/")}>
+                        Sign in
+                    </button>
+                </p>
             </div>
-        )
+        </div>
+    );
 }
 
-export default RegisterPage
+export default RegisterPage;

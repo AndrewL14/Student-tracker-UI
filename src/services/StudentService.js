@@ -1,78 +1,26 @@
+import localDb from './localDb';
+
+/**
+ * Student CRUD backed by the local in-browser store (see localDb.js).
+ * Each method returns/sets the updated student list.
+ */
 class StudentService {
-  static async editStudent(token, editFormData, setStudents) {
-    try {
-      const requestBody = {
-        studentId: editFormData.studentId,
-        nameToChange: editFormData.nameToChange,
-        periodToChange: editFormData.periodToChange,
-        gradeToChange: editFormData.gradeToChange,
-      };
-  
-      const response = await fetch(process.env.REACT_APP_ENDPOINT + ':5000/teacher/edit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
-  
-      if (response.ok) {
-        const updatedStudents = await response.json();
-        setStudents(updatedStudents);
-      } else {
-        console.error('Failed to update student data');
-      }
-    } catch (error) {
-      console.error('Error updating student data:', error);
-    }
+  static async editStudent(editFormData, setStudents) {
+    const updated = await localDb.editStudent(editFormData);
+    setStudents(updated);
+    return updated;
   }
 
-  static async deleteStudent(token, studentId, students, setStudents) {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_ENDPOINT}:5000/teacher/delete?studentId=${studentId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        const updatedStudents = students.filter((student) => student.studentId !== studentId);
-        setStudents(updatedStudents);
-      } else {
-        console.error('Failed to delete student data');
-      }
-    } catch (error) {
-      console.error('Error deleting student data', error);
-    }
+  static async deleteStudent(studentId, setStudents) {
+    const updated = await localDb.deleteStudent(studentId);
+    setStudents(updated);
+    return updated;
   }
 
-  static async addNewStudent(token, addStudentFormData, setStudents) {
-    try {
-      const requestBody = {
-        name: addStudentFormData.name,
-        period: addStudentFormData.period,
-        grade: addStudentFormData.grade
-      }
-
-      const response = await fetch(process.env.REACT_APP_ENDPOINT + ':5000/teacher/add', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
-      if (response.ok) {
-        const updatedStudents = await response.json();
-        setStudents(updatedStudents);
-      } else {
-        console.error('Failed to add new student data');
-      }
-    } catch (error) {
-      console.error('Error adding new student data', error);
-    }
+  static async addNewStudent(addStudentFormData, setStudents) {
+    const updated = await localDb.addStudent(addStudentFormData);
+    setStudents(updated);
+    return updated;
   }
 }
 

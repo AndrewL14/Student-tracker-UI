@@ -1,68 +1,107 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import LoginFilter from "../services/LoginFilter";
-import { Navigate } from "react-router-dom";
+import localDb from "../services/localDb";
 
-function LoginPage(props) {
-    const [feild1, setUsername] = useState('');
-    const [feild2, setPassword] = useState('');
-
-    const handleUsernameChange = event => {
-        setUsername(event.target.value);
-    };
-
-    const handlePasswordChange = event => {
-        setPassword(event.target.value);
-    };
+function LoginPage() {
+    const navigate = useNavigate();
+    const [identifier, setIdentifier] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (event) => {
-      event.preventDefault();
-      console.log('submitted:', { feild1, feild2 });
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const loginData = {feild1, feild2};
+        event.preventDefault();
+        setError("");
+        setLoading(true);
+        try {
+            await LoginFilter.login({ identifier, password });
+            navigate("/dashboard");
+        } catch (err) {
+            setError(err.message || "Login failed. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      if (emailRegex.test(loginData.feild1)){
-        LoginFilter.emailLogin(loginData);
-      } else {
-        LoginFilter.usernameLogin(loginData);
-      }
-    } 
+    const handleDemo = () => {
+        localDb.loginDemo();
+        navigate("/dashboard");
+    };
 
-    const redirect = async event => {
-        window.location.href = '/register';
-    }
-
-    const redirectToPasswordReset = async event => {
-        window.location.href = '/password-reset';
-    }
-
-
-    
-
-        return (
-            <div className="container">
-                <h1>Welcome to Graders</h1>
-                 <div className="login-box">
-                    <div className="login-form">
-                        <form>
-                            <h2>Login</h2>
-                            <label className="login-input">
-                                Username or Email:
-                                <input type="text" required="required" value={feild1} onChange={handleUsernameChange} />
-                            </label>
-                                <br />
-                            <label className="login-input">
-                                Password:
-                                <input type="password" required="required" value={feild2} onChange={handlePasswordChange} />
-                            </label>
-                                <br />
-                            <button className="login-button" type="submit" onClick={handleSubmit}>Login</button>
-                            <button className="register-button" type="submit" onClick={redirect}>Register</button>
-                            <button className="password-reset-button" type="submit" onClick={redirectToPasswordReset}>Forgot Password?</button>
-                        </form>
-                    </div>    
+    return (
+        <div className="auth-page">
+            <div className="auth-card">
+                <div className="auth-brand">
+                    <span className="brand-logo">G</span>
+                    Graders
                 </div>
+                <h1 className="auth-title">Welcome back</h1>
+                <p className="auth-subtitle">Sign in to your gradebook</p>
+
+                {error && <div className="alert alert-error">{error}</div>}
+
+                <form className="auth-form" onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label className="form-label">Username or email</label>
+                        <input
+                            className="form-input"
+                            type="text"
+                            placeholder="you@school.edu"
+                            value={identifier}
+                            onChange={(e) => setIdentifier(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Password</label>
+                        <input
+                            className="form-input"
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="auth-links">
+                        <span />
+                        <button
+                            type="button"
+                            className="link-btn"
+                            onClick={() => navigate("/password-reset")}
+                        >
+                            Forgot password?
+                        </button>
+                    </div>
+
+                    <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
+                        {loading ? "Signing in…" : "Sign in"}
+                    </button>
+                </form>
+
+                <div className="auth-divider">or</div>
+
+                <button className="btn btn-outline btn-block" type="button" onClick={handleDemo}>
+                    Try the live demo
+                </button>
+
+                <div className="demo-hint">
+                    Explore instantly with the demo account —
+                    <strong> demo_teacher</strong> / <strong>demo123</strong>. All data is
+                    saved right in your browser.
+                </div>
+
+                <p className="auth-footer">
+                    New here?{" "}
+                    <button type="button" className="link-btn" onClick={() => navigate("/register")}>
+                        Create an account
+                    </button>
+                </p>
             </div>
-        )
+        </div>
+    );
 }
 
-export default LoginPage
+export default LoginPage;
